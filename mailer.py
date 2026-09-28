@@ -1,6 +1,7 @@
 import os
 import requests
 import base64
+import json
 
 def send_campaign_emails(campaign_id, sender_email, password, subject_template, body_template, df, resume_file=None):
     api_key = password
@@ -40,6 +41,11 @@ def send_campaign_emails(campaign_id, sender_email, password, subject_template, 
         try:
             res = requests.post(url, json=payload, headers=headers)
             if res.status_code >= 400:
-                raise Exception(f'API error: {res.text}')
+                try:
+                    err_data = res.json()
+                    err_msg = err_data.get('message', res.text)
+                except Exception:
+                    err_msg = res.text
+                raise Exception(f'Resend API Error (Status {res.status_code}): {err_msg}')
         except Exception as e:
-            raise Exception(f'Network failed: {str(e)}')
+            raise Exception(f'{str(e)}')
