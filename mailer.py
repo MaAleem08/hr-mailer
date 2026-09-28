@@ -5,7 +5,7 @@ import json
 
 def send_campaign_emails(campaign_id, sender_email, password, subject_template, body_template, df, resume_file=None):
     api_key = password
-    url = 'https://resend.com'
+    url = 'https://api.resend.com/emails'
     headers = {
         'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json'
