@@ -3,7 +3,6 @@ import requests
 import base64
 
 def send_campaign_emails(campaign_id, sender_email, password, subject_template, body_template, df, resume_file=None):
-    # The application form will now take the Resend API Key inside the 'password' box
     api_key = password
     url = 'https://resend.com'
     headers = {
