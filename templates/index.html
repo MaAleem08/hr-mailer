@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bulk HR Email Sender</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="card">
+  <h1>Bulk HR Email Sender</h1>
+
+  <div class="warn">
+    ⚠️ Use responsibly: keep volumes reasonable, personalize your message, and only
+    contact addresses meant for recruitment outreach. Gmail caps free accounts at
+    ~500 sends/day — exceeding it risks account suspension.
+  </div>
+
+  <div id="setup">
+    <label>Sender Email (Gmail)</label>
+    <input type="email" id="sender_email" placeholder="you@gmail.com">
+
+    <label>Gmail App Password <span class="hint">(not your normal password — <a href="https://support.google.com/accounts/answer/185833" target="_blank">create one here</a>. Never shared or stored.)</span></label>
+    <input type="password" id="app_password" placeholder="xxxx xxxx xxxx xxxx">
+
+    <label>Contact File (CSV or Excel — needs a column named "HR EMAIL" or "Email")</label>
+    <input type="file" id="contacts" accept=".csv,.xlsx,.xls">
+    <div id="upload_stats" class="stats"></div>
+
+    <label>Subject <span class="hint">(supports {{first_name}}, {{company}} etc. from your file's columns)</span></label>
+    <input type="text" id="subject" placeholder="Regarding the Data Analyst opening">
+
+    <label>Email Body</label>
+    <textarea id="body" rows="10" placeholder="Hi {{first_name}},&#10;&#10;..."></textarea>
+
+    <label>Attachments (resume, portfolio, etc.)</label>
+    <input type="file" id="attachment_input" multiple>
+    <ul id="attachment_list"></ul>
+
+    <div class="row">
+      <div>
+        <label>Delay between emails (seconds)</label>
+        <div class="row">
+          <input type="number" id="delay_min" value="8" style="width:70px"> to
+          <input type="number" id="delay_max" value="15" style="width:70px">
+        </div>
+      </div>
+      <div>
+        <label>Daily send cap</label>
+        <input type="number" id="daily_cap" value="450" style="width:100px">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="btn_test" class="secondary">Send Test Email to Myself</button>
+      <button id="btn_start" class="primary" disabled>START SENDING</button>
+    </div>
+    <div id="setup_error" class="error"></div>
+  </div>
+
+  <div id="sending" class="hidden">
+    <h2>Sending…</h2>
+    <div class="progress-summary">
+      <span id="sent_count">0</span> / <span id="total_count">0</span> sent
+      &nbsp;|&nbsp; Failed: <span id="failed_count">0</span>
+    </div>
+    <div class="progress-bar"><div id="progress_fill"></div></div>
+    <div id="log" class="log"></div>
+    <div class="actions">
+      <button id="btn_pause" class="secondary">PAUSE</button>
+      <button id="btn_resume" class="secondary hidden">RESUME</button>
+      <button id="btn_stop" class="danger">STOP</button>
+    </div>
+    <a id="btn_report" class="hidden" href="#">Download report (CSV)</a>
+  </div>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>
