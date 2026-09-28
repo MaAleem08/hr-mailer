@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 
-def send_campaign_emails(campaign_id, sender_email, password, subject_template, body_template, df, attachment_path=None):
+def send_campaign_emails(campaign_id, sender_email, password, subject_template, body_template, df, resume_file=None):
     try:
         server = smtplib.SMTP('://gmail.com', 587)
         server.starttls()
@@ -27,6 +27,14 @@ def send_campaign_emails(campaign_id, sender_email, password, subject_template, 
         msg['To'] = email
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'plain'))
+        
+        if resume_file is not None:
+            part = MIMEBase('application', 'octet-stream')
+            resume_file.seek(0)
+            part.set_payload(resume_file.read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', f'attachment; filename={resume_file.name}')
+            msg.attach(part)
         try:
             server.sendmail(sender_email, email, msg.as_string())
         except Exception:
