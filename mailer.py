@@ -1,17 +1,24 @@
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
+import requests
+import base64
 
 def send_campaign_emails(campaign_id, sender_email, password, subject_template, body_template, df, resume_file=None):
-    try:
-        server = smtplib.SMTP('://gmail.com', 587)
-        server.starttls()
-        server.login(sender_email, password)
-    except Exception as e:
-        raise Exception(f'Failed to connect to Gmail: {e}')
+    # The application form will now take the Resend API Key inside the 'password' box
+    api_key = password
+    url = 'https://resend.com'
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+
+    attachments = []
+    if resume_file is not None:
+        resume_file.seek(0)
+        encoded_content = base64.b64encode(resume_file.read()).decode('utf-8')
+        attachments.append({
+            'content': encoded_content,
+            'filename': resume_file.name
+        })
 
     for index, row in df.iterrows():
         email = row.get('HR EMAIL', row.get('Email'))
@@ -22,21 +29,18 @@ def send_campaign_emails(campaign_id, sender_email, password, subject_template, 
             placeholder = f'{{{{{col}}}}}'
             if placeholder in subject: subject = subject.replace(placeholder, str(row[col]))
             if placeholder in body: body = body.replace(placeholder, str(row[col]))
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'plain'))
         
-        if resume_file is not None:
-            part = MIMEBase('application', 'octet-stream')
-            resume_file.seek(0)
-            part.set_payload(resume_file.read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', f'attachment; filename={resume_file.name}')
-            msg.attach(part)
+        payload = {
+            'from': 'HR Mailer <onboarding@resend.dev>',
+            'to': [email],
+            'subject': subject,
+            'text': body
+        }
+        if attachments: payload['attachments'] = attachments
+        
         try:
-            server.sendmail(sender_email, email, msg.as_string())
-        except Exception:
-            pass
-    server.quit()
+            res = requests.post(url, json=payload, headers=headers)
+            if res.status_code >= 400:
+                raise Exception(f'API error: {res.text}')
+        except Exception as e:
+            raise Exception(f'Network failed: {str(e)}')
