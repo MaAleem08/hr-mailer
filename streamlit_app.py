@@ -12,13 +12,13 @@ if uploaded_file:
     try:
         if uploaded_file.name.endswith('.csv'): df = pd.read_csv(uploaded_file)
         else: df = pd.read_excel(uploaded_file)
-        st.success(f'? {len(df)} contacts successfully loaded!')
+        st.success(f'Loaded {len(df)} contacts!')
     except Exception as e: st.error(f'Error reading file: {e}')
 
 sender = st.text_input('Your Gmail Address', placeholder='example@gmail.com')
 password = st.text_input('Gmail App Password', type='password', placeholder='16-character token')
 subject = st.text_input('Email Subject Line')
-body = st.text_area('Email Body Template (Use {{???}} placeholders)')
+body = st.text_area('Email Body Template (Use {{first_name}} placeholders)')
 
 if st.button('START SENDING'):
     if not (uploaded_file and sender and password and subject and body):
@@ -26,7 +26,6 @@ if st.button('START SENDING'):
     else:
         st.info('Starting email dispatch loop...')
         try:
-            # Execute your existing core mailer engine directly on the cloud server
             send_campaign_emails(1, sender, password, subject, body, df)
-            st.success('?? Campaign finished successfully!')
+            st.success('Campaign finished successfully!')
         except Exception as e: st.error(f'Execution halted: {e}')
